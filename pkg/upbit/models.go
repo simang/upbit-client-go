@@ -11,8 +11,6 @@ type Account struct {
 	UnitCurrency        string `json:"unit_currency"`
 }
 
-type Accounts []Account
-
 type Chance struct {
 	BidFee string `json:"bid_fee"`
 	AskFee string `json:"ask_fee"`
@@ -97,13 +95,40 @@ type Order struct {
 	TradesCount     int       `json:"trades_count"`
 }
 
-type Orders []Order
-
 type Market struct {
 	Market        string `json:"market"`
 	KoreanName    string `json:"korean_name"`
 	EnglishName   string `json:"english_name"`
 	MarketWarning string `json:"market_warning"`
+}
+
+type Ticker struct {
+	Market             string  `json:"market"`
+	TradeDate          string  `json:"trade_date"`
+	TradeTime          string  `json:"trade_time"`
+	TradeDateKst       string  `json:"trade_date_kst"`
+	TradeTimeKst       string  `json:"trade_time_kst"`
+	TradeTimestamp     int64   `json:"trade_timestamp"`
+	OpeningPrice       float64     `json:"opening_price"`
+	HighPrice          float64     `json:"high_price"`
+	LowPrice           float64     `json:"low_price"`
+	TradePrice         float64     `json:"trade_price"`
+	PrevClosingPrice   float64     `json:"prev_closing_price"`
+	Change             string  `json:"change"`
+	ChangePrice        float64     `json:"change_price"`
+	ChangeRate         float64 `json:"change_rate"`
+	SignedChangePrice  float64     `json:"signed_change_price"`
+	SignedChangeRate   float64 `json:"signed_change_rate"`
+	TradeVolume        float64 `json:"trade_volume"`
+	AccTradePrice      float64 `json:"acc_trade_price"`
+	AccTradePrice24H   float64 `json:"acc_trade_price_24h"`
+	AccTradeVolume     float64 `json:"acc_trade_volume"`
+	AccTradeVolume24H  float64 `json:"acc_trade_volume_24h"`
+	Highest52WeekPrice float64     `json:"highest_52_week_price"`
+	Highest52WeekDate  string  `json:"highest_52_week_date"`
+	Lowest52WeekPrice  float64     `json:"lowest_52_week_price"`
+	Lowest52WeekDate   string  `json:"lowest_52_week_date"`
+	Timestamp          int64   `json:"timestamp"`
 }
 
 type ChanceParam struct {
@@ -137,6 +162,10 @@ type PostOrdersParam struct {
 
 type AllMarketParam struct {
 	IsDetails bool `url:"isDetails,omitempty"`
+}
+
+type TickerParam struct {
+	Markets string `url:"markets"`
 }
 
 type ErrorMessage struct {

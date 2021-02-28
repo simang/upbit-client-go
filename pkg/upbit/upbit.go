@@ -43,20 +43,20 @@ func NewUpbit(
 	}
 }
 
-func (u *Upbit) Accounts() (*Accounts, error) {
+func (u *Upbit) Accounts() ([]Account, error) {
 	path := "/v1/accounts"
-	var model Accounts
-	err := u.callApi(http.MethodGet, path, nil, &model)
+	var model []Account
+	err := u.callApi(http.MethodGet, path, nil, &model, true)
 	if err != nil {
 		return nil, u.errorf("Failed to call api %s: %s", path, err.Error())
 	}
-	return &model, nil
+	return model, nil
 }
 
 func (u *Upbit) Chance(param *ChanceParam) (*Chance, error) {
 	path := "/v1/orders/chance"
 	var model Chance
-	err := u.callApi(http.MethodGet, path, param, &model)
+	err := u.callApi(http.MethodGet, path, param, &model, true)
 	if err != nil {
 		return nil, u.errorf("Failed to call api %s: %s", path, err.Error())
 	}
@@ -66,7 +66,7 @@ func (u *Upbit) Chance(param *ChanceParam) (*Chance, error) {
 func (u *Upbit) Order(param *OrderParam) (*OrderDetail, error) {
 	path := "/v1/order"
 	var model OrderDetail
-	err := u.callApi(http.MethodGet, path, param, &model)
+	err := u.callApi(http.MethodGet, path, param, &model, true)
 	if err != nil {
 		return nil, u.errorf("Failed to call api %s: %s", path, err.Error())
 	}
@@ -76,39 +76,55 @@ func (u *Upbit) Order(param *OrderParam) (*OrderDetail, error) {
 func (u *Upbit) CancelOrder(param *OrderParam) (*OrderDetail, error) {
 	path := "/v1/order"
 	var model OrderDetail
-	err := u.callApi(http.MethodDelete, path, param, &model)
+	err := u.callApi(http.MethodDelete, path, param, &model, true)
 	if err != nil {
 		return nil, u.errorf("Failed to call api %s: %s", path, err.Error())
 	}
 	return &model, nil
 }
 
-func (u *Upbit) Orders(param *OrdersParam) (*Orders, error) {
+func (u *Upbit) Orders(param *OrdersParam) ([]Order, error) {
 	path := "/v1/orders"
-	var model Orders
-	err := u.callApi(http.MethodDelete, path, param, &model)
+	var model []Order
+	err := u.callApi(http.MethodDelete, path, param, &model, true)
 	if err != nil {
 		return nil, u.errorf("Failed to call api %s: %s", path, err.Error())
 	}
-	return &model, nil
+	return model, nil
 }
 
-func (u *Upbit) CreateOrders(param *PostOrdersParam) (*Orders, error) {
+func (u *Upbit) CreateOrders(param *PostOrdersParam) ([]Order, error) {
 	path := "/v1/orders"
-	var model Orders
-	err := u.callApi(http.MethodPost, path, param, &model)
+	var model []Order
+	err := u.callApi(http.MethodPost, path, param, &model, true)
 	if err != nil {
 		return nil, u.errorf("Failed to call api %s: %s", path, err.Error())
 	}
-	return &model, nil
+	return model, nil
 }
 
 // QUOTATION
-func (u *Upbit) AllMarket() {
-
+func (u *Upbit) AllMarket(param *AllMarketParam) ([]Market, error) {
+	path := "/v1/market/all"
+	var model []Market
+	err := u.callApi(http.MethodGet, path, param, &model, false)
+	if err != nil {
+		return nil, u.errorf("Failed to call api %s: %s", path, err.Error())
+	}
+	return model, nil
 }
 
-func (u *Upbit) callApi(method string, url string, params interface{}, model interface{}) error {
+func (u *Upbit) Ticker(param *TickerParam) ([]Ticker, error) {
+	path := "/v1/ticker"
+	var model []Ticker
+	err := u.callApi(http.MethodGet, path, param, &model, false)
+	if err != nil {
+		return nil, u.errorf("Failed to call api %s: %s", path, err.Error())
+	}
+	return model, nil
+}
+
+func (u *Upbit) callApi(method string, url string, params interface{}, model interface{}, withAuth bool) error {
 	nonce := uuid.New().String()
 	claims := jwt.MapClaims{}
 	claims["access_key"] = u.accessKey
@@ -121,13 +137,16 @@ func (u *Upbit) callApi(method string, url string, params interface{}, model int
 			return err
 		}
 		encodedQuery = v.Encode()
-		h := sha512.New()
-		_, err = h.Write([]byte(encodedQuery))
-		if err != nil {
-			return err
+
+		if withAuth {
+			h := sha512.New()
+			_, err = h.Write([]byte(encodedQuery))
+			if err != nil {
+				return err
+			}
+			claims["query_hash"] = hex.EncodeToString(h.Sum(nil))
+			claims["query_hash_alg"] = "SHA512"
 		}
-		claims["query_hash"] = hex.EncodeToString(h.Sum(nil))
-		claims["query_hash_alg"] = "SHA512"
 	}
 
 	u.logger.Debugf("%+v", claims)
@@ -173,7 +192,7 @@ func (u *Upbit) callApi(method string, url string, params interface{}, model int
 		return err
 	}
 
-	u.logger.Debugf("Response from api status %d: %s", response.StatusCode, string(data))
+	u.logger.Infof("Response from api status %d: %s", response.StatusCode, string(data))
 	if response.StatusCode >= 300 || response.StatusCode < 200 {
 		var msg ErrorMessage
 		if err := json.Unmarshal(data, &msg); err != nil {
