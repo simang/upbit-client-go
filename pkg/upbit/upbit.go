@@ -84,24 +84,24 @@ func (u *Upbit) CancelOrder(param *OrderParam) (*OrderDetail, error) {
 	return &model, nil
 }
 
-func (u *Upbit) Orders(param *OrdersParam) (*Order, error) {
-	path := "/v1/orders"
-	var model Order
-	err := u.callApi(http.MethodDelete, path, param, &model, true)
-	if err != nil {
-		return nil, u.errorf("Failed to call api %s: %s", path, err.Error())
-	}
-	return &model, nil
-}
-
-func (u *Upbit) CreateOrders(param *PostOrdersParam) ([]Order, error) {
+func (u *Upbit) Orders(param *OrdersParam) ([]Order, error) {
 	path := "/v1/orders"
 	var model []Order
-	err := u.callApi(http.MethodPost, path, param, &model, true)
+	err := u.callApi(http.MethodGet, path, param, &model, true)
 	if err != nil {
 		return nil, u.errorf("Failed to call api %s: %s", path, err.Error())
 	}
 	return model, nil
+}
+
+func (u *Upbit) CreateOrders(param *PostOrdersParam) (*Order, error) {
+	path := "/v1/orders"
+	var model Order
+	err := u.callApi(http.MethodPost, path, param, &model, true)
+	if err != nil {
+		return nil, u.errorf("Failed to call api %s: %s", path, err.Error())
+	}
+	return &model, nil
 }
 
 // QUOTATION
@@ -138,7 +138,7 @@ func (u *Upbit) callApi(method string, url string, params interface{}, model int
 			return err
 		}
 		encodedQuery = v.Encode()
-
+		u.logger.Debugf("encoded query: %+v", encodedQuery)
 		if withAuth {
 			h := sha512.New()
 			_, err = h.Write([]byte(encodedQuery))
@@ -150,7 +150,7 @@ func (u *Upbit) callApi(method string, url string, params interface{}, model int
 		}
 	}
 
-	u.logger.Debugf("%+v", claims)
+	u.logger.Debugf("claims: %+v", claims)
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString([]byte(u.secretKey))
@@ -161,20 +161,20 @@ func (u *Upbit) callApi(method string, url string, params interface{}, model int
 	var request *http.Request
 	if method == http.MethodPost || method == http.MethodPut {
 		if params != nil {
-			bodyBytes, err := json.Marshal(params)
+			body, err := json.Marshal(params)
 			if err != nil {
 				return err
 			}
-			request, err = http.NewRequest(method, fmt.Sprintf("%s%s", u.apiUrl, url), bytes.NewBuffer(bodyBytes))
+			u.logger.Debugf("body: %s", string(body))
+			request, err = http.NewRequest(method, fmt.Sprintf("%s%s", u.apiUrl, url), bytes.NewBuffer(body))
 		} else {
 			request, err = http.NewRequest(method, fmt.Sprintf("%s%s", u.apiUrl, url), nil)
 		}
 	} else {
 		if encodedQuery != "" {
-			request, err = http.NewRequest(method, fmt.Sprintf("%s%s?%s", u.apiUrl, url, encodedQuery), nil)
-		} else {
-			request, err = http.NewRequest(method, fmt.Sprintf("%s%s", u.apiUrl, url), nil)
+			encodedQuery = fmt.Sprintf("?%s", encodedQuery)
 		}
+		request, err = http.NewRequest(method, fmt.Sprintf("%s%s%s", u.apiUrl, url, encodedQuery), nil)
 	}
 	if err != nil {
 		return err
