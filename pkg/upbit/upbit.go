@@ -7,11 +7,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+
 	"github.com/google/go-querystring/query"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
-	"io/ioutil"
-	"net/http"
 
 	"github.com/dgrijalva/jwt-go"
 )
@@ -192,7 +193,7 @@ func (u *Upbit) callApi(method string, url string, params interface{}, model int
 		return err
 	}
 
-	u.logger.Infof("Response from api status %d: %s", response.StatusCode, string(data))
+	u.logger.Debugf("Response from api status %d: %s", response.StatusCode, string(data))
 	if response.StatusCode >= 300 || response.StatusCode < 200 {
 		var msg ErrorMessage
 		if err := json.Unmarshal(data, &msg); err != nil {
