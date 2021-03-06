@@ -20,12 +20,12 @@ type Chance struct {
 		Bid        struct {
 			Currency  string      `json:"currency"`
 			PriceUnit interface{} `json:"price_unit"`
-			MinTotal  int         `json:"min_total"`
+			MinTotal  string      `json:"min_total"`
 		} `json:"bid"`
 		Ask struct {
 			Currency  string      `json:"currency"`
 			PriceUnit interface{} `json:"price_unit"`
-			MinTotal  int         `json:"min_total"`
+			MinTotal  string      `json:"min_total"`
 		} `json:"ask"`
 		MaxTotal string `json:"max_total"`
 		State    string `json:"state"`
