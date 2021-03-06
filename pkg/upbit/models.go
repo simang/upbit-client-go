@@ -150,12 +150,12 @@ type OrdersParam struct {
 }
 
 type PostOrdersParam struct {
+	Identifier string `url:"identifier,omitempty" json:"identifier,omitempty"`
 	Market     string `url:"market" json:"market"`
+	OrdType    string `url:"ord_type" json:"ord_type"`
+	Price      string `url:"price,omitempty" json:"price,omitempty"`
 	Side       string `url:"side" json:"side"`
 	Volume     string `url:"volume,omitempty" json:"volume,omitempty"`
-	Price      string `url:"price,omitempty" json:"price,omitempty"`
-	OrdType    string `url:"ord_type" json:"ord_type"`
-	Identifier string `url:"identifier,omitempty" json:"identifier,omitempty"`
 }
 
 type AllMarketParam struct {

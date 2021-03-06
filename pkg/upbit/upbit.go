@@ -179,6 +179,7 @@ func (u *Upbit) callApi(method string, url string, params interface{}, model int
 	if err != nil {
 		return err
 	}
+	request.Header.Add("Content-Type", "application/json")
 	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tokenString))
 
 	response, err := u.httpClient.Do(request)
