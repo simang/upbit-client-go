@@ -84,14 +84,14 @@ func (u *Upbit) CancelOrder(param *OrderParam) (*OrderDetail, error) {
 	return &model, nil
 }
 
-func (u *Upbit) Orders(param *OrdersParam) ([]Order, error) {
+func (u *Upbit) Orders(param *OrdersParam) (*Order, error) {
 	path := "/v1/orders"
-	var model []Order
+	var model Order
 	err := u.callApi(http.MethodDelete, path, param, &model, true)
 	if err != nil {
 		return nil, u.errorf("Failed to call api %s: %s", path, err.Error())
 	}
-	return model, nil
+	return &model, nil
 }
 
 func (u *Upbit) CreateOrders(param *PostOrdersParam) ([]Order, error) {
