@@ -135,6 +135,16 @@ func (u *Upbit) CandlesMinute(unit int32, param *CandleParam) ([]Candle, error) 
 	return model, nil
 }
 
+func (u *Upbit) CandlesDay(param *CandleParam) ([]Candle, error) {
+	path := "/v1/candles/days"
+	var model []Candle
+	err := u.callApi(http.MethodGet, path, param, &model, false)
+	if err != nil {
+		return nil, u.errorf("Failed to call api %s: %s", path, err.Error())
+	}
+	return model, nil
+}
+
 func (u *Upbit) callApi(method string, url string, params interface{}, model interface{}, withAuth bool) error {
 	nonce := uuid.New().String()
 	claims := jwt.MapClaims{}
