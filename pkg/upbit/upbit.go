@@ -44,6 +44,7 @@ func NewUpbit(
 	}
 }
 
+// 전체 계좌 조회
 func (u *Upbit) Accounts() ([]Account, error) {
 	path := "/v1/accounts"
 	var model []Account
@@ -54,7 +55,11 @@ func (u *Upbit) Accounts() ([]Account, error) {
 	return model, nil
 }
 
-func (u *Upbit) Chance(param *ChanceParam) (*Chance, error) {
+// 주문 가능 정보
+func (u *Upbit) Chance(market string) (*Chance, error) {
+	param := &ChanceParam{
+		Market: market,
+	}
 	path := "/v1/orders/chance"
 	var model Chance
 	err := u.callApi(http.MethodGet, path, param, &model, true)
@@ -64,7 +69,12 @@ func (u *Upbit) Chance(param *ChanceParam) (*Chance, error) {
 	return &model, nil
 }
 
-func (u *Upbit) Order(param *OrderParam) (*OrderDetail, error) {
+// 개별 주문 조회
+func (u *Upbit) Order(uuid string, identifier string) (*OrderDetail, error) {
+	param := &OrderParam{
+		Uuid:       uuid,
+		Identifier: identifier,
+	}
 	path := "/v1/order"
 	var model OrderDetail
 	err := u.callApi(http.MethodGet, path, param, &model, true)
@@ -74,7 +84,12 @@ func (u *Upbit) Order(param *OrderParam) (*OrderDetail, error) {
 	return &model, nil
 }
 
-func (u *Upbit) CancelOrder(param *OrderParam) (*OrderDetail, error) {
+// 주문 취소 접수
+func (u *Upbit) CancelOrder(uuid string, identifier string) (*OrderDetail, error) {
+	param := &OrderParam{
+		Uuid:       uuid,
+		Identifier: identifier,
+	}
 	path := "/v1/order"
 	var model OrderDetail
 	err := u.callApi(http.MethodDelete, path, param, &model, true)
@@ -84,6 +99,7 @@ func (u *Upbit) CancelOrder(param *OrderParam) (*OrderDetail, error) {
 	return &model, nil
 }
 
+// 주문 리스트 조회
 func (u *Upbit) Orders(param *OrdersParam) ([]Order, error) {
 	path := "/v1/orders"
 	var model []Order
@@ -94,7 +110,16 @@ func (u *Upbit) Orders(param *OrdersParam) ([]Order, error) {
 	return model, nil
 }
 
-func (u *Upbit) CreateOrders(param *PostOrdersParam) (*Order, error) {
+// 주문하기
+func (u *Upbit) CreateOrders(identifier string, market string, ordType string, price string, side string, volume string) (*Order, error) {
+	param := &PostOrdersParam{
+		Identifier: identifier,
+		Market:     market,
+		OrdType:    ordType,
+		Price:      price,
+		Side:       side,
+		Volume:     volume,
+	}
 	path := "/v1/orders"
 	var model Order
 	err := u.callApi(http.MethodPost, path, param, &model, true)
@@ -104,8 +129,11 @@ func (u *Upbit) CreateOrders(param *PostOrdersParam) (*Order, error) {
 	return &model, nil
 }
 
-// QUOTATION
-func (u *Upbit) AllMarket(param *AllMarketParam) ([]Market, error) {
+// 마켓 코드 조회
+func (u *Upbit) AllMarket(isDetails bool) ([]Market, error) {
+	param := &AllMarketParam{
+		IsDetails: isDetails,
+	}
 	path := "/v1/market/all"
 	var model []Market
 	err := u.callApi(http.MethodGet, path, param, &model, false)
@@ -115,7 +143,11 @@ func (u *Upbit) AllMarket(param *AllMarketParam) ([]Market, error) {
 	return model, nil
 }
 
-func (u *Upbit) Ticker(param *TickerParam) ([]Ticker, error) {
+// 현재가 정보
+func (u *Upbit) Ticker(markets string) ([]Ticker, error) {
+	param := &TickerParam{
+		Markets: markets,
+	}
 	path := "/v1/ticker"
 	var model []Ticker
 	err := u.callApi(http.MethodGet, path, param, &model, false)
@@ -125,7 +157,12 @@ func (u *Upbit) Ticker(param *TickerParam) ([]Ticker, error) {
 	return model, nil
 }
 
-func (u *Upbit) CandlesMinute(unit int32, param *CandleParam) ([]Candle, error) {
+// 분(Minute) 캔들
+func (u *Upbit) CandlesMinute(unit int32, market string, count int32) ([]Candle, error) {
+	param := &CandleParam{
+		Market: market,
+		Count:  count,
+	}
 	path := fmt.Sprintf("/v1/candles/minutes/%d", unit)
 	var model []Candle
 	err := u.callApi(http.MethodGet, path, param, &model, false)
@@ -135,7 +172,12 @@ func (u *Upbit) CandlesMinute(unit int32, param *CandleParam) ([]Candle, error) 
 	return model, nil
 }
 
-func (u *Upbit) CandlesDay(param *CandleParam) ([]Candle, error) {
+// 일(Day) 캔들
+func (u *Upbit) CandlesDay(market string, count int32) ([]Candle, error) {
+	param := &CandleParam{
+		Market: market,
+		Count:  count,
+	}
 	path := "/v1/candles/days"
 	var model []Candle
 	err := u.callApi(http.MethodGet, path, param, &model, false)
