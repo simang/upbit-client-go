@@ -158,10 +158,11 @@ func (u *Upbit) Ticker(markets string) ([]Ticker, error) {
 }
 
 // 분(Minute) 캔들
-func (u *Upbit) CandlesMinute(unit int32, market string, count int32) ([]Candle, error) {
+func (u *Upbit) CandlesMinute(unit int32, market string, count int32, to string) ([]Candle, error) {
 	param := &CandleParam{
 		Market: market,
 		Count:  count,
+		To:     to,
 	}
 	path := fmt.Sprintf("/v1/candles/minutes/%d", unit)
 	var model []Candle
@@ -173,10 +174,11 @@ func (u *Upbit) CandlesMinute(unit int32, market string, count int32) ([]Candle,
 }
 
 // 일(Day) 캔들
-func (u *Upbit) CandlesDay(market string, count int32) ([]Candle, error) {
+func (u *Upbit) CandlesDay(market string, count int32, to string) ([]Candle, error) {
 	param := &CandleParam{
 		Market: market,
 		Count:  count,
+		To:     to,
 	}
 	path := "/v1/candles/days"
 	var model []Candle

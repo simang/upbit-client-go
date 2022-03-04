@@ -183,6 +183,7 @@ type TickerParam struct {
 type CandleParam struct {
 	Market string `url:"market"`
 	Count  int32  `url:"count"`
+	To     string `url:"to"` // yyyy-MM-dd'T'HH:mm:ss'Z' or yyyy-MM-dd HH:mm:ss
 }
 
 type ErrorMessage struct {
